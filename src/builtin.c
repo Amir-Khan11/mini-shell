@@ -4,13 +4,14 @@
 #include <unistd.h>
 #include "builtin.h"
 #include "jobs.h"
+#include "history.h"
 
 int is_builtin(char **args) {
     if (args[0] == NULL) return 0;
     if (strcmp(args[0], "exit") == 0 || strcmp(args[0], "cd") == 0 || 
         strcmp(args[0], "pwd") == 0 || strcmp(args[0], "jobs") == 0 ||
         strcmp(args[0], "fg") == 0 || strcmp(args[0], "bg") == 0 ||
-        strcmp(args[0], "kill") == 0) {
+        strcmp(args[0], "kill") == 0 || strcmp(args[0], "history") == 0) {
         return 1;
     }
     return 0;
@@ -29,4 +30,5 @@ void execute_builtin(char **args) {
     else if (strcmp(args[0], "fg") == 0) do_fg(args);
     else if (strcmp(args[0], "bg") == 0) do_bg(args);
     else if (strcmp(args[0], "kill") == 0) do_kill(args);
+    else if (strcmp(args[0], "history") == 0) print_history();
 }

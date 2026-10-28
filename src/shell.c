@@ -7,6 +7,7 @@
 #include "execute.h"
 #include "pipeline.h"
 #include "jobs.h"
+#include "history.h"
 
 #define MAX_ARGS 64
 
@@ -16,7 +17,7 @@ void shell_run(void) {
     ssize_t chars_read;
     char *args[MAX_ARGS];
 
-    init_shell_terminal(); // Initialize terminal control and block signals
+    init_shell_terminal();
 
     while (1) {
         reap_jobs();
@@ -28,6 +29,9 @@ void shell_run(void) {
         if (chars_read == -1) {
             printf("\n"); break;
         }
+
+        // Record the raw string to history before strtok chops it up
+        add_history(line);
 
         parse_input(line, args);
         if (args[0] == NULL) continue;
