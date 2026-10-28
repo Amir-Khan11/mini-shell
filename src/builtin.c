@@ -3,52 +3,30 @@
 #include <string.h>
 #include <unistd.h>
 #include "builtin.h"
-#include "jobs.h" // NEW: Include jobs.h
+#include "jobs.h"
 
-int is_builtin(char **args)
-{
-    if (args[0] == NULL)
-        return 0;
-    if (strcmp(args[0], "exit") == 0 || strcmp(args[0], "cd") == 0 ||
-        strcmp(args[0], "pwd") == 0 || strcmp(args[0], "jobs") == 0)
-    {
+int is_builtin(char **args) {
+    if (args[0] == NULL) return 0;
+    if (strcmp(args[0], "exit") == 0 || strcmp(args[0], "cd") == 0 || 
+        strcmp(args[0], "pwd") == 0 || strcmp(args[0], "jobs") == 0 ||
+        strcmp(args[0], "fg") == 0 || strcmp(args[0], "bg") == 0 ||
+        strcmp(args[0], "kill") == 0) {
         return 1;
     }
     return 0;
 }
 
-void execute_builtin(char **args)
-{
-    if (strcmp(args[0], "exit") == 0)
-    {
-        exit(0);
-    }
-    else if (strcmp(args[0], "cd") == 0)
-    {
-        if (args[1] == NULL)
-        {
-            printf("cd: missing folder name\n");
-        }
-        else
-        {
-            if (chdir(args[1]) != 0)
-                perror("cd failed");
-        }
-    }
-    else if (strcmp(args[0], "pwd") == 0)
-    {
+void execute_builtin(char **args) {
+    if (strcmp(args[0], "exit") == 0) exit(0);
+    else if (strcmp(args[0], "cd") == 0) {
+        if (args[1] == NULL) printf("cd: missing folder name\n");
+        else if (chdir(args[1]) != 0) perror("cd failed");
+    } else if (strcmp(args[0], "pwd") == 0) {
         char cwd[1024];
-        if (getcwd(cwd, sizeof(cwd)) != NULL)
-        {
-            printf("%s\n", cwd);
-        }
-        else
-        {
-            perror("pwd failed");
-        }
-    }
-    else if (strcmp(args[0], "jobs") == 0)
-    { // NEW: Handle jobs command
-        display_jobs();
-    }
+        if (getcwd(cwd, sizeof(cwd)) != NULL) printf("%s\n", cwd);
+        else perror("pwd failed");
+    } else if (strcmp(args[0], "jobs") == 0) display_jobs();
+    else if (strcmp(args[0], "fg") == 0) do_fg(args);
+    else if (strcmp(args[0], "bg") == 0) do_bg(args);
+    else if (strcmp(args[0], "kill") == 0) do_kill(args);
 }
