@@ -1,0 +1,6 @@
+pwd
+echo "Running batch test..." > batch_output.txt
+cat < batch_output.txt
+ls -l | grep batch_output
+history
+exit
