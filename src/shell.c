@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "shell.h"
 #include "parser.h"
 #include "builtin.h"
 #include "execute.h"
-#include "pipeline.h" // NEW: Include pipeline header
+#include "pipeline.h"
+#include "jobs.h" // NEW: Include jobs.h
 
 #define MAX_ARGS 64
 
@@ -17,6 +19,9 @@ void shell_run(void)
 
     while (1)
     {
+        // NEW: Clean up finished background jobs BEFORE showing the prompt
+        reap_jobs();
+
         printf("myshell> ");
         fflush(stdout);
 
@@ -32,18 +37,29 @@ void shell_run(void)
         if (args[0] == NULL)
             continue;
 
-        // NEW: Check for pipeline first
+        // NEW: Check for background execution '&'
+        int is_bg = 0;
+        int i = 0;
+        while (args[i] != NULL)
+            i++;
+        if (i > 0 && strcmp(args[i - 1], "&") == 0)
+        {
+            is_bg = 1;
+            args[i - 1] = NULL; // Remove '&' so it doesn't get passed to execvp
+        }
+
         if (is_pipeline(args))
         {
-            execute_pipeline(args);
+            execute_pipeline(args, is_bg);
         }
         else if (is_builtin(args))
         {
+            // Built-ins generally run in the parent, so we ignore is_bg for them
             execute_builtin(args);
         }
         else
         {
-            execute_command(args);
+            execute_command(args, is_bg);
         }
     }
     free(line);
